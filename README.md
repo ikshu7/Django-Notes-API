@@ -23,8 +23,8 @@ A backend-only REST API built using Django and Django REST Framework for managin
 ## ⚙️ Setup Instructions
 
 ```bash
-git clone https://github.com/your-username/django-notes-api.git
-cd django-notes-api
+git clone https://github.com/ikshu7/Django-Notes-API.git
+cd Django-Notes-API
 pip install -r requirements.txt
 python manage.py migrate
 python manage.py runserver
