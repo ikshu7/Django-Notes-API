@@ -5,6 +5,7 @@ A backend-only REST API built using Django and Django REST Framework for managin
 ## 🚀 Features
 - Create, update, delete notes
 - RESTful API architecture
+- Categories & Tags
 - Pagination support
 - Search & filtering
 - Django ORM & SQLite
