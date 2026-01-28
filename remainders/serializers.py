@@ -4,4 +4,4 @@ from .models import Remainder
 class RemainderSerializer(serializers.ModelSerializer):
     class Meta:
         model = Remainder
-        fields = ["id", "title"]
+        fields = ["id", "title", "description"]

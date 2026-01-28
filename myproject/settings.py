@@ -40,7 +40,7 @@ INSTALLED_APPS = [
     "corsheaders",
     "main.apps.MainConfig",
     "rest_framework",
-    "api",
+    "notes",
     "remainders",
 ]
 
