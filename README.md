@@ -3,7 +3,7 @@
 A backend-only REST API built using Django and Django REST Framework for managing notes.
 
 ## 🚀 Features
-- Create, update, delete notes
+- Create, update, delete - Notes, Remainders, Todo Lists
 - RESTful API architecture
 - Categories & Tags
 - Pagination support
@@ -17,7 +17,6 @@ A backend-only REST API built using Django and Django REST Framework for managin
 - SQLite
 
 ## 📌 Planned Features
-- Reminders API
 - User authentication (JWT)
 - Frontend integration
 
