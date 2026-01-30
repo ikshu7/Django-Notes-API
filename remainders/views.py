@@ -2,8 +2,8 @@ from rest_framework import generics
 from django.db.models import Q
 from django.utils.dateparse import parse_date
 
-from .models import Remainder
-from .serializers import RemainderSerializer
+from .models import Remainder, Category
+from .serializers import RemainderSerializer, CategorySerializer
 from .pagination import SmallResultsSetPagination
 
 class RemainderListCreateView(generics.ListCreateAPIView):
@@ -20,6 +20,13 @@ class RemainderListCreateView(generics.ListCreateAPIView):
                 Q(title__icontains=search) |
                 Q(description__icontains=search)
             )
+
+        category_parameter = self.request.GET.get("category")
+        if category_parameter:
+            if category_parameter.isdigit():
+                remainders = remainders.filter(category_id = int(category_parameter))
+            else:
+                remainders = remainders.filter(category__name__iexact = category_parameter)
 
         is_completed = self.request.GET.get("is_completed")
         if is_completed in ["true", "false"]:
@@ -59,3 +66,11 @@ class RemainderDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Remainder.objects.all()
     serializer_class = RemainderSerializer
 
+class CategoryListCreateView(generics.ListCreateAPIView):
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
+
+class CategoryDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
+    

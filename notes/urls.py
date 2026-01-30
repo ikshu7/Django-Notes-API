@@ -22,9 +22,9 @@ urlpatterns = [
     path("notes/", NotesListCreateView.as_view(), name="notes-list-create"),
     path("notes/<int:pk>/", NoteDetailView.as_view(), name="note-detail"),
 
-    path('categories/', CategoryListCreateView.as_view(), name='categories-list-create'),
-    path('categories/<int:pk>/', CategoryDetailView.as_view(), name='category-detail'),
+    path('notes/categories/', CategoryListCreateView.as_view(), name='categories-list-create'),
+    path('notes/categories/<int:pk>/', CategoryDetailView.as_view(), name='category-detail'),
 
-    path('tags/', TagListCreateView.as_view(), name='tags-list-create'),
-    path('tags/<int:pk>/', TagDetailView.as_view(), name='tag-detail'),
+    path('notes/tags/', TagListCreateView.as_view(), name='tags-list-create'),
+    path('notes/tags/<int:pk>/', TagDetailView.as_view(), name='tag-detail'),
 ]
