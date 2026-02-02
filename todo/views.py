@@ -1,5 +1,6 @@
 from rest_framework import generics
 from django.db.models import Q
+from django.db.models import Case, When, IntegerField
 from django.utils.dateparse import parse_date
 
 from .models import ToDo, Category
@@ -31,9 +32,19 @@ class TodoListCreateView(generics.ListCreateAPIView):
 
         completed = self.request.GET.get("completed")
         if completed in ["true", "false"]:
-            todos = todos.filter(
-                completed=(completed == "true")
-            )
+            todos = todos.filter(completed=(completed == "true"))
+
+            if completed == "true":
+                todos = todos.annotate(
+                    priority_order=Case(
+                        When(priority=ToDo.PRIORITY_HIGH, then=1),
+                        When(priority=ToDo.PRIORITY_MEDIUM, then=2),
+                        When(priority=ToDo.PRIORITY_LOW, then=3),
+                        When(priority=ToDo.PRIORITY_NOT_SET, then=4),
+                        output_field=IntegerField(),
+                    )
+                ).order_by("priority_order", "-created_at")
+
 
         created_from = parse_date(self.request.GET.get("created_from") or "")
         created_to = parse_date(self.request.GET.get("created_to") or "")
@@ -45,7 +56,8 @@ class TodoListCreateView(generics.ListCreateAPIView):
         ordering = self.request.GET.get("ordering")
         allowed_ordering = {
             "created_at", "-created_at",
-            "title", "-title"
+            "title", "-title",
+            "priority", "-priority"
         }
 
         if ordering in allowed_ordering:
