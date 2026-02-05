@@ -4,19 +4,16 @@ from rest_framework.decorators import api_view
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from django.db.models import Q
-from django.utils.dateparse import parse_date
 
 from .models import Notes, Category, Tag
 from .serializers import NotesSerializer, CategorySerializer, TagSerializer
 from .pagination import LargeResultsSetPagination, SmallResultsSetPagination
-
-
-# Create your views here.
-
-#class NotesListCreateView(generics.ListCreateAPIView):
-#    queryset = Notes.objects.all()
-#    serializer_class = NotesSerializer
+from main.filters import (
+    apply_search,
+    apply_category_filter,
+    apply_date_range,
+    apply_ordering,
+)
 
 
 class NotesListCreateView(generics.ListCreateAPIView):
@@ -27,18 +24,16 @@ class NotesListCreateView(generics.ListCreateAPIView):
     def get_queryset(self):
         notes = Notes.objects.all().order_by("id")
 
-        search = self.request.GET.get("search")
-        if search:
-            notes = notes.filter(
-                Q(title__icontains = search) | Q(content__icontains = search)
-            )
+        notes = apply_search(
+            notes,
+            self.request.GET.get("search"),
+            fields=("title", "content"),
+        )
 
-        category_parameter = self.request.GET.get("category")
-        if category_parameter:
-            if category_parameter.isdigit():
-                notes = notes.filter(category_id = int(category_parameter))
-            else:
-                notes = notes.filter(category__name__iexact = category_parameter)
+        notes = apply_category_filter(
+            notes,
+            self.request.GET.get("category"),
+        )
 
         tags_parameter = self.request.GET.get("tags")
         if tags_parameter:
@@ -46,24 +41,22 @@ class NotesListCreateView(generics.ListCreateAPIView):
             if tags_list:
                 if all(tag.isdigit() for tag in tags_list):
                     tag_ids = [int(tag) for tag in tags_list]
-                    notes = notes.filter(tags__id__in = tag_ids).distinct()
+                    notes = notes.filter(tags__id__in=tag_ids).distinct()
                 else:
-                    notes = notes.filter(tags__name__in = tags_list).distinct()
-            
+                    notes = notes.filter(tags__name__in=tags_list).distinct()
 
-        created_from = parse_date(self.request.GET.get("created_from") or "")
-        created_to = parse_date(self.request.GET.get("created_to") or "")
-        if created_from:
-            notes = notes.filter(created_at__date__gte = created_from)
-        if created_to:
-            notes = notes.filter(created_at__date__lte = created_to)
+        notes = apply_date_range(
+            notes,
+            field="created_at",
+            start=self.request.GET.get("created_from"),
+            end=self.request.GET.get("created_to"),
+        )
 
-        ordering = self.request.GET.get("ordering")
-        allowed_ordering = {"created_at", "-created_at", "title", "-title"}
-        if ordering in allowed_ordering:
-            notes = notes.order_by(ordering)
-        else:
-            notes = notes.order_by("id")
+        notes = apply_ordering(
+            notes,
+            self.request.GET.get("ordering"),
+            allowed_ordering={"created_at", "-created_at", "title", "-title"},
+        )
 
         return notes
 

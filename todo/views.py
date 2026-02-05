@@ -1,11 +1,15 @@
 from rest_framework import generics
-from django.db.models import Q
 from django.db.models import Case, When, IntegerField
-from django.utils.dateparse import parse_date
 
 from .models import ToDo, Category
 from .serializers import TodoSerializer, CategorySerializer
 from .pagination import SmallResultsSetPagination
+from main.filters import (
+    apply_search,
+    apply_category_filter,
+    apply_date_range,
+    apply_ordering,
+)
 
 
 class TodoListCreateView(generics.ListCreateAPIView):
