@@ -18,19 +18,16 @@ class RemainderListCreateView(generics.ListCreateAPIView):
     def get_queryset(self):
         remainders = Remainder.objects.all().order_by("id")
 
-        search = self.request.GET.get("search")
-        if search:
-            remainders = remainders.filter(
-                Q(title__icontains=search) |
-                Q(description__icontains=search)
-            )
+        remainders = apply_search(
+            remainders,
+            self.request.GET.get("search"),
+            fields=("title", "description"),
+        )
 
-        category_parameter = self.request.GET.get("category")
-        if category_parameter:
-            if category_parameter.isdigit():
-                remainders = remainders.filter(category_id = int(category_parameter))
-            else:
-                remainders = remainders.filter(category__name__iexact = category_parameter)
+        remainders = apply_category_filter(
+            remainders,
+            self.request.GET.get("category"),
+        )
 
         is_completed = self.request.GET.get("is_completed")
         if is_completed in ["true", "false"]:
@@ -38,32 +35,32 @@ class RemainderListCreateView(generics.ListCreateAPIView):
                 is_completed=(is_completed == "true")
             )
 
-        remind_from = parse_date(self.request.GET.get("remind_from") or "")
-        remind_to = parse_date(self.request.GET.get("remind_to") or "")
-        if remind_from:
-            remainders = remainders.filter(remind_at__date__gte=remind_from)
-        if remind_to:
-            remainders = remainders.filter(remind_at__date__lte=remind_to)
+        remainders = apply_date_range(
+            remainders,
+            field="remind_at",
+            start=self.request.GET.get("remind_from"),
+            end=self.request.GET.get("remind_to"),
+        )
 
-        created_from = parse_date(self.request.GET.get("created_from") or "")
-        created_to = parse_date(self.request.GET.get("created_to") or "")
-        if created_from:
-            remainders = remainders.filter(created_at__date__gte=created_from)
-        if created_to:
-            remainders = remainders.filter(created_at__date__lte=created_to)
+        remainders = apply_date_range(
+            remainders,
+            field="created_at",
+            start=self.request.GET.get("created_from"),
+            end=self.request.GET.get("created_to"),
+        )
 
-        ordering = self.request.GET.get("ordering")
-        allowed_ordering = {
-            "created_at", "-created_at",
-            "remind_at", "-remind_at",
-            "title", "-title"
-        }
-        if ordering in allowed_ordering:
-            remainders = remainders.order_by(ordering)
-        else:
-            remainders = remainders.order_by("id")
+        remainders = apply_ordering(
+            remainders,
+            self.request.GET.get("ordering"),
+            allowed_ordering={
+                "created_at", "-created_at",
+                "remind_at", "-remind_at",
+                "title", "-title",
+            },
+        )
 
         return remainders
+
 
 
 class RemainderDetailView(generics.RetrieveUpdateDestroyAPIView):

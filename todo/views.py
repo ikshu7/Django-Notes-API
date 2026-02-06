@@ -20,19 +20,16 @@ class TodoListCreateView(generics.ListCreateAPIView):
     def get_queryset(self):
         todos = ToDo.objects.all().order_by("id")
 
-        search = self.request.GET.get("search")
-        if search:
-            todos = todos.filter(
-                Q(title__icontains=search) |
-                Q(description__icontains=search)
-            )
+        todos = apply_search(
+            todos,
+            self.request.GET.get("search"),
+            fields=("title", "description"),
+        )
 
-        category_parameter = self.request.GET.get("category")
-        if category_parameter:
-            if category_parameter.isdigit():
-                todos = todos.filter(category_id = int(category_parameter))
-            else:
-                todos = todos.filter(category__name__iexact = category_parameter)
+        todos = apply_category_filter(
+            todos,
+            self.request.GET.get("category"),
+        )
 
         completed = self.request.GET.get("completed")
         if completed in ["true", "false"]:
@@ -49,27 +46,25 @@ class TodoListCreateView(generics.ListCreateAPIView):
                     )
                 ).order_by("priority_order", "-created_at")
 
+        todos = apply_date_range(
+            todos,
+            field="created_at",
+            start=self.request.GET.get("created_from"),
+            end=self.request.GET.get("created_to"),
+        )
 
-        created_from = parse_date(self.request.GET.get("created_from") or "")
-        created_to = parse_date(self.request.GET.get("created_to") or "")
-        if created_from:
-            todos = todos.filter(created_at__date__gte=created_from)
-        if created_to:
-            todos = todos.filter(created_at__date__lte=created_to)
-
-        ordering = self.request.GET.get("ordering")
-        allowed_ordering = {
-            "created_at", "-created_at",
-            "title", "-title",
-            "priority", "-priority"
-        }
-
-        if ordering in allowed_ordering:
-            todos = todos.order_by(ordering)
-        else:
-            todos = todos.order_by("id")
+        todos = apply_ordering(
+            todos,
+            self.request.GET.get("ordering"),
+            allowed_ordering={
+                "created_at", "-created_at",
+                "title", "-title",
+                "priority", "-priority",
+            },
+        )
 
         return todos
+
 
 
 class TodoDetailView(generics.RetrieveUpdateDestroyAPIView):
