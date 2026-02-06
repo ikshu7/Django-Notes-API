@@ -1,9 +1,10 @@
 from rest_framework import generics
 from django.db.models import Case, When, IntegerField
 
-from .models import ToDo, Category
-from .serializers import TodoSerializer, CategorySerializer
-from .pagination import SmallResultsSetPagination
+from .models import ToDo
+from .serializers import TodoSerializer
+
+from main.pagination import SmallResultsSetPagination
 from main.filters import (
     apply_search,
     apply_category_filter,
@@ -66,16 +67,6 @@ class TodoListCreateView(generics.ListCreateAPIView):
         return todos
 
 
-
 class TodoDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = ToDo.objects.all()
     serializer_class = TodoSerializer
-
-class CategoryListCreateView(generics.ListCreateAPIView):
-    queryset = Category.objects.all()
-    serializer_class = CategorySerializer
-
-class CategoryDetailView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Category.objects.all()
-    serializer_class = CategorySerializer
-    

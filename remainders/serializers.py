@@ -1,10 +1,9 @@
 from rest_framework import serializers
-from .models import Remainder, Category
+from .models import Remainder
 
-class CategorySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Category
-        fields = ['id', 'name']
+from main.models import Category
+from main.serializers import CategorySerializer
+
 
 class RemainderSerializer(serializers.ModelSerializer):
     category = CategorySerializer(read_only = True)

@@ -1,8 +1,9 @@
 from rest_framework import generics
 
-from .models import Remainder, Category
-from .serializers import RemainderSerializer, CategorySerializer
-from .pagination import SmallResultsSetPagination
+from .models import Remainder
+from .serializers import RemainderSerializer
+
+from main.pagination import SmallResultsSetPagination
 from main.filters import (
     apply_search,
     apply_category_filter,
@@ -62,16 +63,6 @@ class RemainderListCreateView(generics.ListCreateAPIView):
         return remainders
 
 
-
 class RemainderDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Remainder.objects.all()
     serializer_class = RemainderSerializer
-
-class CategoryListCreateView(generics.ListCreateAPIView):
-    queryset = Category.objects.all()
-    serializer_class = CategorySerializer
-
-class CategoryDetailView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Category.objects.all()
-    serializer_class = CategorySerializer
-    

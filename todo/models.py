@@ -1,10 +1,6 @@
 from django.db import models
+from main.models import Category
 
-class Category(models.Model):
-    name = models.CharField(max_length=50, unique=True)
-
-    def __str__(self):
-        return self.name
 
 class ToDo(models.Model):
     PRIORITY_NOT_SET = "Not_Set"
