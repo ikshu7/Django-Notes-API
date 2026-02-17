@@ -1,8 +1,10 @@
 from django.db import models
+from django.contrib.auth.models import User
 from main.models import Category
 
 
 class Remainder(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="remainders")
     title = models.CharField(max_length=255)
     description = models.TextField(blank=True)
     remind_at = models.DateTimeField()

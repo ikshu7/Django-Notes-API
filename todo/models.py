@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import User
 from main.models import Category
 
 
@@ -15,6 +16,7 @@ class ToDo(models.Model):
         (PRIORITY_NOT_SET, "Not Set"),
     ]
 
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="todo")
     title = models.CharField(max_length=100)
     description = models.TextField(blank=True)
     completed = models.BooleanField(default=False)

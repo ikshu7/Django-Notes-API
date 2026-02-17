@@ -6,12 +6,15 @@ from main.serializers import CategorySerializer, TagSerializer
 
         
 class NotesSerializer(serializers.ModelSerializer):
+    owner = serializers.CharField(source="user.username", read_only=True)
+
     category = CategorySerializer(read_only = True)
     category_id = serializers.PrimaryKeyRelatedField(
         queryset = Category.objects.all(), 
         source = 'category', 
         write_only = True, 
-        allow_null = True
+        allow_null = True,
+        required = False
         )
 
     tags = TagSerializer(read_only = True, many = True)
@@ -29,6 +32,7 @@ class NotesSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'title', 'content', 
             'created_at', 'updated_at',
+            'owner',
             'category', 'category_id',
             'tags', 'tag_ids'
         ]

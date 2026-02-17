@@ -13,12 +13,11 @@ from main.filters import (
 
 
 class NotesListCreateView(generics.ListCreateAPIView):
-    queryset = Notes.objects.all().order_by("id")
     serializer_class = NotesSerializer
     pagination_class = SmallResultsSetPagination
 
     def get_queryset(self):
-        notes = Notes.objects.all().order_by("id")
+        notes = Notes.objects.filter(user=self.request.user).order_by("id")
 
         notes = apply_search(
             notes,
@@ -55,8 +54,13 @@ class NotesListCreateView(generics.ListCreateAPIView):
         )
 
         return notes
+    
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
 
 
 class NoteDetailView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Notes.objects.all()
     serializer_class = NotesSerializer
+
+    def get_queryset(self):
+        return Notes.objects.filter(user=self.request.user)

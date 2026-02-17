@@ -12,12 +12,11 @@ from main.filters import (
 )
 
 class RemainderListCreateView(generics.ListCreateAPIView):
-    queryset = Remainder.objects.all().order_by("id")
     serializer_class = RemainderSerializer
     pagination_class = SmallResultsSetPagination
 
     def get_queryset(self):
-        remainders = Remainder.objects.all().order_by("id")
+        remainders = Remainder.objects.filter(user=self.request.user).order_by("id")
 
         remainders = apply_search(
             remainders,
@@ -61,8 +60,13 @@ class RemainderListCreateView(generics.ListCreateAPIView):
         )
 
         return remainders
+    
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
 
 
 class RemainderDetailView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Remainder.objects.all()
     serializer_class = RemainderSerializer
+
+    def get_queryset(self):
+        return Remainder.objects.filter(user=self.request.user)

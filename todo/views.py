@@ -14,12 +14,11 @@ from main.filters import (
 
 
 class TodoListCreateView(generics.ListCreateAPIView):
-    queryset = ToDo.objects.all().order_by("id")
     serializer_class = TodoSerializer
     pagination_class = SmallResultsSetPagination
 
     def get_queryset(self):
-        todos = ToDo.objects.all().order_by("id")
+        todos = ToDo.objects.filter(user=self.request.user).order_by("id")
 
         todos = apply_search(
             todos,
@@ -65,8 +64,13 @@ class TodoListCreateView(generics.ListCreateAPIView):
         )
 
         return todos
+    
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
 
 
 class TodoDetailView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = ToDo.objects.all()
     serializer_class = TodoSerializer
+
+    def get_queryset(self):
+        return ToDo.objects.filter(user=self.request.user)
